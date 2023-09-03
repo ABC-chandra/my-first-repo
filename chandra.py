@@ -65,3 +65,51 @@ worksheet1.write(0, 2,  'loc')'''
     
     
 workbook.close()
+
+
+========================================
+
+
+DB connection script
+
+
+
+import psycopg2
+import pandas as pd
+import os
+import openpyxl
+import sys
+
+hostname ="54.242.197.47"
+database ="IMEIDBTRN"
+username ="imeidbtrn"
+pwd="IMEIDBTRN$VG1228$"
+port_id =5444
+conn=None
+cur =None
+
+conn =psycopg2.connect(
+        dbname=database,
+        host=hostname,
+        user=username,
+        password=pwd,
+        port=port_id)
+cur = conn.cursor()
+cur.execute("CREATE TABLE IF NOT EXISTS vishnu(id varchar2 PRIMARY KEY,name varchar2(40),salary int,dept_id varchar(30));")
+cur.execute("INSERT INTO vishnu (id,name,salary,dept_id) values(4, 'madhu', 19000, 'D4')")
+
+'''cur.execute("select * from vishnu")
+print(cur.fetchall())'''
+
+df=pd.read_sql_query("select * from emp",conn)
+ls=df['name'].unique()
+base_dir="C:\\Users\\chandrasekhar\\OneDrive - Venusgeo Solution Inc\\DBA_GSMA\\Chandra reports"
+for x in ls:
+    folders=base_dir + x
+    if not os.path.exists(folders):
+        os.mkdir(folders)
+        df[df['name']==x].to_excel("{}\{}.xlsx".format(folders,x),sheet_name=x,index=False)
+
+conn.commit()
+cur.close()
+conn.close()
